@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Monitor Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>API Monitor Dashboard</h1>
+            <p>Real-time monitoring of API endpoints and traffic</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Main Dashboard</a>
+            <a href="/security">Security Monitor</a>
+        </div>
+
+        <button class="refresh-button" onclick="location.reload()">Refresh Dashboard</button>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Active Sessions</h3>
+                <p>{{ active_sessions }} current sessions</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Requests</h3>
+                <p>{{ total_requests }} requests processed</p>
+            </div>
+            <div class="stat-card">
+                <h3>Error Rate</h3>
+                <p>{{ error_rate }}% error rate</p>
+            </div>
+        </div>
+
+        <h2>Endpoint Status</h2>
+        <div class="endpoint-grid">
+            {% for endpoint in endpoints %}
+            <div class="endpoint-card">
+                <h3>{{ endpoint['path'] }}</h3>
+                <p>Methods: {{ endpoint['methods']|join(', ') }}</p>
+                <p>Status: <span class="status-{{ endpoint['last_status'] }}">{{ endpoint['last_status'] }}</span></p>
+                <p>Response Time: {{ endpoint['last_response_time'] }}ms</p>
+                <p>Success Rate: {{ endpoint['success_rate'] }}%</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <h2>Recent Requests</h2>
+        <div class="logs-container">
+            {% for log in logs %}
+            <div class="log-entry">
+                <span class="method-tag method-{{ log['method'] }}">{{ log['method'] }}</span>
+                <span class="status-{{ log['status_code'] }}">
+                    [{{ log['timestamp'] }}] {{ log['endpoint'] }} - IP: {{ log['ip_address'] }} - Status: {{ log['status_code'] }}
+                    ({{ log['response_time'] }}ms)
+                </span>
+                {% if log['payload'] %}
+                <div class="payload-data">
+                    Payload: {{ log['payload']|tojson }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            location.reload();
+        }, 5000);
+    </script>
+</body>
+</html> 

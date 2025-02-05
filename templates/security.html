@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Security Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header security-header">
+            <h1>Security Monitor Dashboard</h1>
+            <p>Real-time security monitoring and automated responses</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Main Dashboard</a>
+            <a href="/security">Security Monitor</a>
+        </div>
+
+        <button class="refresh-button" onclick="location.reload()">Refresh Dashboard</button>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Blocked IPs</h3>
+                <p>{{ blocked_ips|length }} IPs currently blocked</p>
+                <div class="stat-details">
+                    <small>High Risk: {{ high_risk_count }}</small>
+                    <small>Medium Risk: {{ medium_risk_count }}</small>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Rate Limited Requests</h3>
+                <p>{{ rate_limited_count }} requests rate limited</p>
+                <div class="stat-details">
+                    <small>Last 5 minutes: {{ recent_rate_limits }}</small>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Suspicious Auth Attempts</h3>
+                <p>{{ suspicious_auth_count }} suspicious attempts detected</p>
+                <div class="stat-details">
+                    <small>Failed logins: {{ failed_login_count }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="security-grid">
+            <div class="security-section">
+                <h2>Currently Blocked IPs</h2>
+                <div class="blocked-ips">
+                    {% for ip, details in blocked_ips.items() %}
+                    <div class="ip-entry risk-{{ details.risk_level }}">
+                        <div class="ip-info">
+                            <strong>{{ ip }}</strong>
+                            <span class="warning">(Blocked at: {{ details.blocked_at }})</span>
+                            <span class="risk-badge">{{ details.risk_level }}</span>
+                        </div>
+                        <div class="ip-details">
+                            <div>Reason: {{ details.reason }}</div>
+                            <div>Request Count: {{ details.request_count }}</div>
+                            <div>Error Rate: {{ details.error_rate }}%</div>
+                            {% if details.pattern_type %}
+                            <div>Pattern: {{ details.pattern_type }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="security-section">
+                <h2>Active Rate Limits</h2>
+                <div class="rate-limits">
+                    {% for ip, limits in rate_limits.items() %}
+                    <div class="ip-entry">
+                        <div class="ip-info">
+                            <strong>{{ ip }}</strong>
+                            <span>(Requests: {{ limits.count }})</span>
+                        </div>
+                        <div class="ip-details">
+                            <div>Warnings: {{ limits.warnings }}</div>
+                            <div>Request Rate: {{ limits.request_rate|round(2) }}/sec</div>
+                            <div>Last Activity: {{ limits.last_activity_ago }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="security-section">
+                <h2>Recent Security Events</h2>
+                <div class="security-events">
+                    {% for event in security_events %}
+                    <div class="event-entry event-{{ event.type }}">
+                        <div class="event-time">{{ event.timestamp }}</div>
+                        <div class="event-details">
+                            <strong>{{ event.type|upper }}</strong>: {{ event.description }}
+                            <div class="event-meta">IP: {{ event.ip }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            location.reload();
+        }, 5000);
+    </script>
+</body>
+</html> 
