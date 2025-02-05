@@ -1,4 +1,4 @@
-# Abnormalities Detection in Endpoints using AI
+# Abnormalities Detection in Endpoint logs using AI
 
 **Abnormal_log-Detection** is an AI-driven application designed to detect anomalies in endpoint logs, enhancing system monitoring and security.
 
