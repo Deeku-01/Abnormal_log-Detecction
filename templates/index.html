@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Website Log Testing Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .section {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .button.admin { background-color: #f44336; }
+        .button.unknown { background-color: #808080; }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .status {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        .success { background-color: #dff0d8; }
+        .error { background-color: #f2dede; }
+    </style>
+</head>
+<body>
+    <h1>Website Log Testing Interface</h1>
+    
+    <div class="container">
+        <div class="section">
+            <h2>Login Tests</h2>
+            <button class="button" onclick="login('user1', 'password123')">Login as User1</button>
+            <button class="button" onclick="login('user2', 'password456')">Login as User2</button>
+            <button class="button admin" onclick="login('admin', 'adminpass')">Login as Admin</button>
+            <button class="button unknown" onclick="login('unknown_user', 'wrongpass')">Login as Unknown</button>
+            <button class="button" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="section">
+            <h2>Actions</h2>
+            <button class="button" onclick="getData()">Access Data</button>
+            <button class="button admin" onclick="adminAction()">Admin Action</button>
+            <button class="button" onclick="multipleLogins()">Simulate Multiple Logins</button>
+        </div>
+
+        <div class="section">
+            <h2>Test Traffic Control</h2>
+            <button class="button" onclick="multipleLogins()">Simulate Multiple Logins</button>
+            <button class="button" style="background-color: #f44336;" onclick="stopTestTraffic()">Stop Test Traffic</button>
+        </div>
+    </div>
+
+    <div id="response">
+        <h3>Response:</h3>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        function showResponse(message, isError = false) {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = 'status ' + (isError ? 'error' : 'success');
+        }
+
+        async function login(username, password) {
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                showResponse(`Login ${data.status} for ${username}`, !response.ok);
+            } catch (error) {
+                showResponse(`Error: ${error.message}`, true);
+            }
+        }
+
+        async function logout() {
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                showResponse('Logged out successfully');
+            } catch (error) {
+                showResponse(`Error: ${error.message}`, true);
+            }
+        }
+
+        async function getData() {
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                showResponse(`Data access: ${JSON.stringify(data)}`, !response.ok);
+            } catch (error) {
+                showResponse(`Error: ${error.message}`, true);
+            }
+        }
+
+        async function adminAction() {
+            try {
+                const response = await fetch('/api/admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'test_action' })
+                });
+                const data = await response.json();
+                showResponse(`Admin action ${data.status}`, !response.ok);
+            } catch (error) {
+                showResponse(`Error: ${error.message}`, true);
+            }
+        }
+
+        async function multipleLogins() {
+            const users = [
+                {username: 'user1', password: 'password123'},
+                {username: 'user2', password: 'password456'},
+                {username: 'admin', password: 'adminpass'},
+                {username: 'unknown_user', password: 'wrongpass'}
+            ];
+            
+            showResponse('Starting multiple login simulation...');
+            
+            for (const user of users) {
+                await login(user.username, user.password);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            showResponse('Multiple login simulation completed');
+        }
+
+        async function stopTestTraffic() {
+            try {
+                const response = await fetch('/api/stop_test_traffic', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                showResponse('Test traffic generator stopped');
+            } catch (error) {
+                showResponse(`Error: ${error.message}`, true);
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Security Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header security-header">
+            <h1>Security Monitor Dashboard</h1>
+            <p>Real-time security monitoring and automated responses</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Main Dashboard</a>
+            <a href="/security">Security Monitor</a>
+        </div>
+
+        <button class="refresh-button" onclick="location.reload()">Refresh Dashboard</button>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Blocked IPs</h3>
+                <p>{{ blocked_ips|length }} IPs currently blocked</p>
+            </div>
+            <div class="stat-card">
+                <h3>Rate Limited Requests</h3>
+                <p>{{ rate_limited_count }} requests rate limited</p>
+            </div>
+            <div class="stat-card">
+                <h3>Suspicious Auth Attempts</h3>
+                <p>{{ suspicious_auth_count }} suspicious attempts detected</p>
+            </div>
+        </div>
+
+        <h2>Currently Blocked IPs</h2>
+        <div class="blocked-ips">
+            {% for ip, details in blocked_ips.items() %}
+            <div class="ip-entry">
+                <div>
+                    <strong>{{ ip }}</strong>
+                    <span class="warning">(Blocked at: {{ details.blocked_at }})</span>
+                </div>
+                <div>
+                    Reason: {{ details.reason }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <h2>Active Rate Limits</h2>
+        <div class="rate-limits">
+            {% for ip, limits in rate_limits.items() %}
+            <div class="ip-entry">
+                <div>
+                    <strong>{{ ip }}</strong>
+                    <span>(Requests: {{ limits.count }})</span>
+                </div>
+                <div>
+                    Warnings: {{ limits.warnings }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            location.reload();
+        }, 5000);
+    </script>
+</body>
+</html> 
